@@ -1,0 +1,108 @@
+<html>
+<body>
+
+<pre>
+I have only tested this on the Buffalo LS-WXL.  I don't know if
+it works on any other models.
+
+- Obtain root access to LS-WXL.
+
+  . See http://buffalo.nas-central.org/wiki/Category:LS-WXL#Gain_Root_Access
+
+- Install nasdvr-0.1 directory to /mnt/array1/share
+
+- Run chmod -R nobody on the nasdvr-0.1 directory
+
+- Run chmod 777 nasdvr-0.1/dat
+
+- Run chmod 755 nasdvr-0.1/bin/*.pl
+
+- Run chmod 755 nasdvr-0.1/cgi-bin/*.cgi
+
+- Copy the files in arm-bin to /usr/bin
+
+- Change to the nasdvr-0.1/sql directory
+
+- Enable Web Server
+
+  . Log into LS-WXL admin screen from a web browser
+  . Go under the Network > Web Server menu
+  . Enable, point at share/nasdvr-0.1 and save
+
+- Enable Media Server
+
+  . Log into LS-WXL admin screen from a web browser
+  . Go under the Extensions > Media Server menu
+  . Enable and Save
+
+- Enable MySQL database server
+
+  . Log into LS-WXL admin screen from a web browser
+  . Go under the Network > MySQL Server menu
+  . Enable and select MySQL root directory
+  . Save
+  
+- Create the nasdvr database
+
+  . Enter: mysql -u admin -ppassword (password is your admin password on the LS-WXSL)
+  . Enter: create database nasdvr
+  . Enter: \q
+  . Enter: mysql -u admin -ppassword nasdvr < base.sql
+  
+- Download and install the following packages from CPAN
+
+   CGI
+   Date::Calc
+   SOAP::Lite
+   XML::Twig
+
+- Change to the nasdvr-0.1/lib directory
+
+- Edit the config.pm file and set your admin username and password
+
+- In your web browser enter the URL that points to your new install
+
+  . http://192.168.1.1:81/nasdvr-0.1 (enter appropriate host IP address and port)
+  
+- Click on the Tuners link
+
+- Click the "Scan" button and make note of the ID returned
+
+- Click on the Configure link
+
+- Enter the HDHomeRun ID in the hdhr_id field
+
+- Enter your Schedules Direct username and password in sd_username and sd_password
+
+- Enter you timezone offset from GMT in tz_offset
+
+- Click the Tuners link and then click the Scan button.  This process
+  will take a while to complete.  After it is done, you should see all
+  the stations found by your HDHomeRun on both tuners.
+  
+- Change directory to nasdvr-0.1/bin
+
+- Run sd.pl.  This will populate your listings database.
+
+- Edit the root crontab
+
+  . Enter: crontab -e
+  . Add the following lines
+  
+    00 0 * * * cd /mnt/array1/share/nasdvr-0.1/bin;./sd.pl
+    * * * * * cd /mnt/array1/share/nasdvr-0.1/bin;./scheduler.pl
+
+  . This will run the Schedules Direct updater once a day and
+    the program scheduler once per minute.
+    
+You should be ready to start scheduling shows!!
+
+Use your favorite uPNP client device to watch recordings.
+
+</pre>
+
+</body>
+</html>
+
+
+
