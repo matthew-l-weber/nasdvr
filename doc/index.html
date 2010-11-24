@@ -1,0 +1,58 @@
+<h1>NASDVR</h1>
+
+<h2>History</h2>
+
+Back in the SDTV days I had a great DVR setup.  I used an old full size ATX Pentium with a 500GB hard drive running the <a href="http://www.mythtv.org/">MythTV</a> backend located in my basement.  I used MythWeb for scheduling and managing recordings from my desktop and laptop PC.  For the front end, I used 2 <a href="http://www.hauppauge.com/html/mediamvp_datasheet.htm">Hauppague MediaMVP</a> devices running <a href="http://www.mvpmc.org/">mvpmc</a> to watch recorded programs on my family room and bedroom televisions.  I liked the MediaMVP because it was cheap, small and silent.  It was a great setup and very reliable.<p>
+
+Recently I wanted to setup a network file server that could hold all our pictures, music and documents that could be accessible from any computer in the house.  Initially I was just going to buy a 1TB hard drive and put it in the MythTV backend machine and fire-up SAMBA.  However, I came across a great deal on this <a href="http://buffalotech.com/products/network-storage/home-and-small-office/linkstation-duo-ls-wxlr1/">Buffalo 2TB NAS</a> that was hard to turn down.  So I purchased it and that became the network file server.  It worked great.<p>
+
+Enter HDTV.  My backend MythTV server had two Hauppauge <a href="http://www.hauppauge.com/site/products/data_pvr350.html">PVR-350's</a> for video capture.  These devices only work with NTSC signals.  So I started researching options.  My first thought was to use two HD to SD coverters, setup IR blasters and run the signals into the PVR-350's for capture.  Then I came across Silicon Dust's <a href="http://www.silicondust.com/products/hdhomerun/atsc/">HDHomeRun</a>.  This is exactly what I needed.  It captures the HD signal and makes the results available to clients on the network.  MythTV had build in support for the HDHomeRun so it was a no brainer.  I ditched the PVR-350's, setup the HDHomeRun and everything on the backend was up and running.<p>
+
+The next problem was the MediaMVPs.  They can't play HD!!  I tried to use ffmpeg to transcode the HD to SD so I could watch the recordings still using the MediaMVP.  My old ATX computer was way too slow to handle this task effectively.  More research.  I came across the Western Digital <a href="http://www.wdc.com/en/products/wdtv/">WDTV</a>.  It was a device just as small as the MediaMVP, cheap and silent.  The WDTV can play files served up by uPNP servers.  The Myth backend provides a uPNP server.  So with the new setup of the HDHomeRun and the WDTV boxes, I was back up and running.  I continued to use MythWeb for scheduling and managing recordings.<p>
+
+After 5 years of non-stop performance, my old ATX box died.  I think it was a some kind of power surge issue.  Now I was faced with replacing that box.  During this time of discovery, I started studying the Buffalo NAS a bit more.  I never realized.  But the Buffalo NAS was a full blown linux box that had built in support for running a web server and a mysql server.  After obtaining root access to the box, I also learned that it had perl support and seemed to be some derivitave of Debian.  This got me thinking.<p>
+
+I downloaded an ARM cross-compiler to my desktop Linux box and was able to successfully compile the HDHomeRun client application, hdhomerun_config.  Sure enough, I was able to record directly from the HDHomeRun to the Buffalo NAS without any problems.  This is all I needed to get interested in starting this project.<p>
+
+<h2>Requirements</h2>
+
+- Schedules Direct account to get program listings<br>
+- Buffalo LS-WXSL running mysql, perl, lighttpd and twonkey (all included)<br>
+- HDHomeRun<br>
+- Root access to the Buffalo NAS<br>
+- NASDVR Perl Application to do scheduling and manage recordings<br>
+- Cross-compiled hdhomerun_config and make<br>
+- Several perl CPAN packages</br>
+
+<h3>Install</h3>
+
+See <a href="install.html">install</a>
+
+<h4>Help Out</h4>
+
+Please join the <a href="https://sourceforge.net/projects/nasdvr/">sourceforge project</a>.  The setup works just fine for me.  However, the documentation, install instructions, Web GUI can all use improvements.
+
+<h2>Screen Shots</h2>
+
+<h3>Listings</h3>
+<img height="400" src="images/listings.jpg"/><p>
+<h3>Favorites</h3>
+<img height="400" src="images/favorites.jpg"/><p>
+<h3>Search</h3>
+<img height="400" src="images/search.jpg"/><p>
+<h3>Queue</h3>
+<img height="400" src="images/queue.jpg"/><p>
+<h3>Recorded</h3>
+<img height="400" src="images/recorded.jpg"/><p>
+<h3>Tuners</h3>
+<img height="400" src="images/tuners.jpg"/><p>
+<h3>Configure</h3>
+<img height="400" src="images/configure.jpg"/><p>
+<h3>Buffalo Media Server</h3>
+<img height="400" src="images/twonky.jpg"/><p>
+<h3>Buffalo Web Server</h3>
+<img height="400" src="images/web_server.jpg"/><p>
+<h3>Buffalo MySQL Server</h3>
+<img height="400" src="images/mysql.jpg"/><p>
+
+
