@@ -11,25 +11,25 @@ stations.
 
   . See http://buffalo.nas-central.org/wiki/Category:LS-WXL#Gain_Root_Access
 
-- Install nasdvr-0.1 directory to /mnt/array1/share
+- Install nasdvr-0.2 directory to /mnt/array1/share
 
-- Run chmod -R nobody on the nasdvr-0.1 directory
+- Run chmod -R nobody on the nasdvr-0.2 directory
 
-- Run chmod 777 nasdvr-0.1/dat
+- Run chmod 777 nasdvr-0.2/dat
 
-- Run chmod 755 nasdvr-0.1/bin/*.pl
+- Run chmod 755 nasdvr-0.2/bin/*.pl
 
-- Run chmod 755 nasdvr-0.1/cgi-bin/*.cgi
+- Run chmod 755 nasdvr-0.2/cgi-bin/*.cgi
 
 - Copy the files in arm-bin to /usr/bin
 
-- Change to the nasdvr-0.1/sql directory
+- Change to the nasdvr-0.2/sql directory
 
 - Enable Web Server
 
   . Log into LS-WXL admin screen from a web browser
   . Go under the Network > Web Server menu
-  . Enable, point at share/nasdvr-0.1 and save
+  . Enable, point at share/nasdvr-0.2 and save
 
 - Enable Media Server
 
@@ -58,13 +58,13 @@ stations.
    SOAP::Lite
    XML::Twig
 
-- Change to the nasdvr-0.1/lib directory
+- Change to the nasdvr-0.2/lib directory
 
 - Edit the config.pm file and set your admin username and password
 
 - In your web browser enter the URL that points to your new install
 
-  . http://192.168.1.1:81/nasdvr-0.1 (enter appropriate host IP address and port)
+  . http://192.168.1.1:81/nasdvr-0.2 (enter appropriate host IP address and port)
   
 - Click on the Tuners link
 
@@ -82,7 +82,7 @@ stations.
   will take a while to complete.  After it is done, you should see all
   the stations found by your HDHomeRun on both tuners.
   
-- Change directory to nasdvr-0.1/bin
+- Change directory to nasdvr-0.2/bin
 
 - Run sd.pl.  This will populate your listings database.
 
@@ -91,8 +91,8 @@ stations.
   . Enter: crontab -e
   . Add the following lines
   
-    00 0 * * * cd /mnt/array1/share/nasdvr-0.1/bin;./sd.pl
-    * * * * * cd /mnt/array1/share/nasdvr-0.1/bin;./scheduler.pl
+    00 0 * * * cd /mnt/array1/share/nasdvr-0.2/bin;./sd.pl
+    * * * * * cd /mnt/array1/share/nasdvr-0.2/bin;./scheduler.pl
 
   . This will run the Schedules Direct updater once a day and
     the program scheduler once per minute.
@@ -100,6 +100,12 @@ stations.
 You should be ready to start scheduling shows!!
 
 Use your favorite uPNP client device to watch recordings.
+
+<b>Note:</b> You can create a symbolic link to your install dir from
+nasdvr-0.2 to nasdvr if you want to make it easier to upgrade to future
+versions.  Then you don't need to change your configuration settings, etc.
+If you do this, then you need to edit the /etc/lighttpd/lighttpd.conf file
+and set server.follow-symlink = "enable".
 
 </pre>
 
