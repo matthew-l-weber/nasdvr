@@ -34,7 +34,8 @@ sub clearPrograms {
 
     $db->do('delete from programs where program_id not in 
         (select program_id from queue) and program_id not in
-        (select program_id from recorded)');
+        (select program_id from recorded) and program_id not in
+        (select program_id from favorites)');
 }
 
 sub clearTunerTable {
