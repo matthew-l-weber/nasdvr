@@ -3,7 +3,7 @@ package db;
 use lib '/usr/lib/perl5/vendor_perl/5.8.8/armv5tejl-linux';
 use strict;
 use config;
-use Date::Calc qw(Add_Delta_YMDHMS);
+use Date::Calc qw(Add_Delta_YMDHMS Mktime);
 use DBI;
 use logger;
 
@@ -318,7 +318,7 @@ sub getRecorded {
 
     my $st = $db->prepare('select recorded.*, programs.* from recorded
             left outer join programs on (recorded.program_id = programs.program_id)
-            order by start_time');
+            where recorded.deleted != 1 order by start_time');
 
     $st->execute();
 
@@ -428,9 +428,11 @@ sub queue {
     if ($rec->{start_time} =~ /(.*)\-(.*)\-(.*)T(.*)\:(.*)\:(.*)Z/) {
 
         # Don't allow recording times in the past
-        
-        if (($1 >= $year) and ($2 >= $month) and 
-            ($3 >= $day) and ($4 >= $hour)) {
+
+        my $t1 = Mktime($year, $month, $day, $hour, 0, 0);
+        my $t2 = Mktime($1, $2, $3, $4, 0, 0);
+
+        if ($t2 >= $t1) {
             
             # Only record shows that are not in the queue and 
             # are not recorded already
@@ -485,13 +487,14 @@ sub deleteRecording {
     $filename =~ s/\!//g;
     $filename .= '.mpg';
 
-    unlink(getPref('recording_dir').'/'.$filename);
+    if ( -f getPref('recording_dir').'/'.$filename) {
+        unlink(getPref('recording_dir').'/'.$filename);
+        logger::log("$filename deleted");
+    }
+    
+    $st = $db->prepare('update recorded set deleted = ? where record_id = ?');
 
-    logger::log("$filename deleted");
-
-    $st = $db->prepare('delete from recorded where record_id = ?');
-
-    $st->execute($id);
+    $st->execute(1, $id) or logger::log("$DBI::errstr");
 }
 
 sub getPref {
@@ -587,13 +590,12 @@ sub getSeries {
     my $program_id = shift;
     my $station_id = shift;
     
-    my $program_id = 
-        substr($program_id, 0, length($program_id) - 3);
+    my $program_id = substr($program_id, 2, 8);
 
     my $st = $db->prepare('select * from schedule where program_id like ? and 
         station_id = ?');
     
-    $st->execute($program_id.'%', $station_id);
+    $st->execute('%'.$program_id.'%', $station_id);
  
     my @programs;
     
@@ -609,13 +611,12 @@ sub cancelSeries {
     my $program_id = shift;
     my $station_id = shift;
     
-    my $program_id = 
-        substr($program_id, 0, length($program_id) - 3);
+    my $program_id = substr($program_id, 2, 8);
         
     my $st = $db->prepare('delete from queue where program_id like ? and 
         station_id = ?');
     
-    $st->execute($program_id.'%', $station_id);
+    $st->execute('%'.$program_id.'%', $station_id);
 }
 
 return 1;
