@@ -419,22 +419,36 @@ sub queue {
     
     my $rec = getScheduleRec($id);
 
-    # Only record shows that are not in the queue and 
-    # are not recorded already
-    
-    my $st = $db->prepare('select * from queue where program_id = ?');
-    $st->execute($rec->{program_id});
-    my $rec2 = $st->fetchrow_hashref();
-    
-    my $st = $db->prepare('select * from recorded where program_id = ?');
-    $st->execute($rec->{program_id});
-    my $rec3 = $st->fetchrow_hashref();
-    
-    if (!defined($rec2) and !defined($rec3)) {
-        my $st = $db->prepare('insert into queue (program_id, station_id,
-            start_time, duration) values (?, ?, ?, ?)');        
-        $st->execute($rec->{program_id}, $rec->{station_id}, 
-                $rec->{start_time}, $rec->{duration});
+    my ($sec, $min, $hour, $day, $month, $year, $wday, $yday, $isdst) = localtime(time);
+
+    $year += 1900;
+    $month++;
+
+    if ($rec->{start_time} =~ /(.*)\-(.*)\-(.*)T(.*)\:(.*)\:(.*)Z/) {
+
+        # Don't allow recording times in the past
+        
+        if (($1 >= $year) and ($2 >= $month) and 
+            ($3 >= $day) and ($4 >= $hour)) {
+            
+            # Only record shows that are not in the queue and 
+            # are not recorded already
+            
+            my $st = $db->prepare('select * from queue where program_id = ?');
+            $st->execute($rec->{program_id});
+            my $rec2 = $st->fetchrow_hashref();
+            
+            my $st = $db->prepare('select * from recorded where program_id = ?');
+            $st->execute($rec->{program_id});
+            my $rec3 = $st->fetchrow_hashref();
+            
+            if (!defined($rec2) and !defined($rec3)) {
+                my $st = $db->prepare('insert into queue (program_id, station_id,
+                    start_time, duration) values (?, ?, ?, ?)');        
+                $st->execute($rec->{program_id}, $rec->{station_id}, 
+                        $rec->{start_time}, $rec->{duration});
+            }
+        }
     }
 }
 
