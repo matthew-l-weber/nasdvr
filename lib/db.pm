@@ -165,30 +165,20 @@ sub getSearch {
     
     if (length($query)) {
 
-        my $st = $db->prepare('select * from stations');
-    
-        $st->execute();
-    
-        my %station_hash;
-    
-        while (my $rec = $st->fetchrow_hashref()) {
-            $station_hash{$rec->{station_id}} = $rec;
-        }
-    
         my $st = $db->prepare('select schedule.*, programs.*, stations.* from schedule
             left outer join programs on (schedule.program_id = programs.program_id)
             left outer join stations on (schedule.station_id = stations.station_id)
-            where upper(programs.title) like ?
+            where (upper(programs.title) like ?) or
+            (upper(programs.subtitle) like ?)
             order by start_time, stations.channel, stations.minor');
     
-        $st->execute('%'.uc($query).'%');
+        $st->execute('%'.uc($query).'%', '%'.uc($query).'%');
     
         while (my $rec = $st->fetchrow_hashref()) {
             
             $rec->{duration} = substr($rec->{duration}, 2, 2).':'.
                 substr($rec->{duration}, 5, 2);
-            my $rec2 = $station_hash{$rec->{station_id}};
-            $rec->{station} = $rec2->{channel}.'.'.$rec2->{minor};
+            $rec->{station} = $rec->{channel}.'.'.$rec->{minor};
             $rec->{time} = substr($rec->{start_time}, 0, 10).' '.
                 substr($rec->{start_time}, 11, 5);
     
@@ -304,21 +294,12 @@ sub getQueue {
 
 sub getRecorded {
 
-    my $st = $db->prepare('select * from stations');
-
-    $st->execute();
-
-    my %station_hash;
-
-    while (my $rec = $st->fetchrow_hashref()) {
-        $station_hash{$rec->{station_id}} = $rec;
-    }
-
     my @programs;
 
-    my $st = $db->prepare('select recorded.*, programs.* from recorded
-            left outer join programs on (recorded.program_id = programs.program_id)
-            where recorded.deleted != 1 order by start_time');
+    my $st = $db->prepare('select recorded.*, programs.*, stations.* from recorded
+        left outer join programs on (recorded.program_id = programs.program_id)
+        left outer join stations on (recorded.station_id = stations.station_id)
+        where recorded.deleted != 1 order by start_time');
 
     $st->execute();
 
@@ -327,9 +308,7 @@ sub getRecorded {
         $rec->{duration} = substr($rec->{duration}, 2, 2).':'.
             substr($rec->{duration}, 5, 2);
 
-        my $rec2 = $station_hash{$rec->{station_id}};
-
-        $rec->{station} = $rec2->{channel}.'.'.$rec2->{minor};
+        $rec->{station} = $rec->{channel}.'.'.$rec->{minor};
 
         $rec->{time} = substr($rec->{start_time}, 0, 10).' '.
             substr($rec->{start_time}, 11, 5);

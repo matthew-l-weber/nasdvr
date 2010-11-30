@@ -23,7 +23,9 @@ print '<table cellpadding="5" cellspacing="0">';
 
 print '<tr bgcolor="#cccccc">
     <th></th>
-    <th>Time</th>
+    <th>Date/Time</th>
+    <th>Duration</th>
+    <th>Channel</th>
     <th align="left">Title</th>
     <th align="left">Subtitle</th>
     </tr>';
@@ -42,6 +44,8 @@ foreach my $p (@{$programs}) {
         $p->{'record_id'}.'">Delete</a></td>';
 
     print '<td align="center">'.$p->{'time'}.'</td>'.
+        '<td align="center">'.$p->{'duration'}.'</td>'.
+        '<td align="center">'.$p->{'station'}.'</td>'.
         '<td>'.$p->{'title'}.'</td>'.
         '<td>'.$p->{'subtitle'}.'</td>'.
         '</tr>';
