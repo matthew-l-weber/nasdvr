@@ -23,7 +23,8 @@ print '<table cellpadding="5" cellspacing="0">';
 
 print '<tr bgcolor="#cccccc">
     <th></th>
-    <th>Date/Time</th>
+    <th>Date</th>
+    <th>Time</th>
     <th>Duration</th>
     <th>Channel</th>
     <th align="left">Title</th>
@@ -38,12 +39,15 @@ foreach my $p (@{$programs}) {
 
     my $color = ($counter % 2) ? '#eeeeee' : '#ffffff';
 
-    print '<tr>';
+    print '<tr bgcolor="'.$color.'">';
 
     print '<td><a href="?action=delete&id='.
         $p->{'record_id'}.'">Delete</a></td>';
 
-    print '<td align="center">'.$p->{'time'}.'</td>'.
+    my ($d, $t) = split(/ /, $p->{time});
+
+    print '<td align="center">'.$d.'</td>'.
+        '<td align="center">'.$t.'</td>'.
         '<td align="center">'.$p->{'duration'}.'</td>'.
         '<td align="center">'.$p->{'station'}.'</td>'.
         '<td>'.$p->{'title'}.'</td>'.

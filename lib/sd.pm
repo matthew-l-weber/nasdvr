@@ -6,6 +6,7 @@ use SOAP::Lite;
 use strict;
 use XML::Twig;
 use Date::Calc qw(Add_Delta_YMDHMS);
+use logger;
 
 my %station_hash;
 my %program_hash;
@@ -58,7 +59,7 @@ sub update {
         my $stop = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", 
 			$y, $m + 1, $d, $h, $n, $s);
 
-        print "$start - $stop\n";
+        logger::log("Updating schedule from $start to $stop");
 
         my $data = $soap->download($start, $stop);
 

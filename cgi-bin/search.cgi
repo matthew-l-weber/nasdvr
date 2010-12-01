@@ -41,6 +41,7 @@ print '<table cellpadding="5" cellspacing="0">';
 
 print '<tr bgcolor="#cccccc">
     <th></th>
+    <th>Date</th>
     <th>Time</th>
     <th>Duration</th>
     <th>Channel</th>
@@ -101,7 +102,10 @@ foreach my $p (@{$programs}) {
 
     print '</td>';
     
-    print '<td align="center">'.$p->{'time'}.'</td>'.
+    my ($d, $t) = split(/ /, $p->{time});
+
+    print '<td align="center">'.$d.'</td>'.
+        '<td align="center">'.$t.'</td>'.
         '<td align="center">'.$p->{'duration'}.'</td>'.
         '<td align="center">'.$p->{'station'}.'</td>'.
         '<td>'.$p->{'title'}.'</td>'.
