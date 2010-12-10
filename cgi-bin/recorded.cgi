@@ -59,5 +59,15 @@ foreach my $p (@{$programs}) {
 
 print '</table>';
 
+print '<p>';
+
+my $cmd = 'df -h '.db::getPref('recording_dir');
+
+my ($line1, $line2) = split(/\n/, `$cmd`);
+
+my @parts = split(/\s+/, $line2);
+
+print "$parts[2] of $parts[1] ($parts[4]) used<p>";
+
 footer::print();
 
