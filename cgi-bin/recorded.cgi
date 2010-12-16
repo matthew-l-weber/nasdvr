@@ -11,13 +11,40 @@ db::init();
 
 print CGI::header(30);
 
+my $filter_name = CGI::param('filter_name');
+
 if (CGI::param('action') eq 'delete') {
     db::deleteRecording(CGI::param('id'));
 }
 
+my $counter = 0;
+
+my $programs = db::getRecorded();
+
 header::print();
 
 print '<h2>Recorded</h2>';
+
+print '<form><table><tr><td><b>Filter:</b></td><td>
+	<select name="filter_name" onchange="submit()">';
+print '<option value="">All Recordings</option>';
+
+my %program_hash;
+
+foreach my $p (@{$programs}) {
+	$program_hash{$p->{title}} += 1;
+}
+
+foreach my $name (sort keys %program_hash) {
+	my $count = $program_hash{$name};
+	print "<option value=\"$name\"";
+	if ($filter_name eq $name) {
+		print ' selected';
+	}
+	print ">$name ($count)</option>";
+}
+
+print '</select></td></tr></table></form>';
 
 print '<table cellpadding="5" cellspacing="0">';
 
@@ -31,30 +58,29 @@ print '<tr bgcolor="#cccccc">
     <th align="left">Subtitle</th>
     </tr>';
 
-my $counter = 0;
-
-my $programs = db::getRecorded();
-
 foreach my $p (@{$programs}) {
 
-    my $color = ($counter % 2) ? '#eeeeee' : '#ffffff';
+	if (!length($filter_name) or ($filter_name eq $p->{title})) {
 
-    print '<tr bgcolor="'.$color.'">';
+		my $color = ($counter % 2) ? '#eeeeee' : '#ffffff';
 
-    print '<td><a href="?action=delete&id='.
-        $p->{'record_id'}.'">Delete</a></td>';
+		print '<tr bgcolor="'.$color.'">';
 
-    my ($d, $t) = split(/ /, $p->{time});
+		print '<td><a href="?action=delete&id='.
+			$p->{'record_id'}.'">Delete</a></td>';
 
-    print '<td align="center">'.$d.'</td>'.
-        '<td align="center">'.$t.'</td>'.
-        '<td align="center">'.$p->{'duration'}.'</td>'.
-        '<td align="center">'.$p->{'station'}.'</td>'.
-        '<td>'.$p->{'title'}.'</td>'.
-        '<td>'.$p->{'subtitle'}.'</td>'.
-        '</tr>';
+		my ($d, $t) = split(/ /, $p->{time});
 
-    $counter++;
+		print '<td align="center">'.$d.'</td>'.
+			'<td align="center">'.$t.'</td>'.
+			'<td align="center">'.$p->{'duration'}.'</td>'.
+			'<td align="center">'.$p->{'station'}.'</td>'.
+			'<td>'.$p->{'title'}.'</td>'.
+			'<td>'.$p->{'subtitle'}.'</td>'.
+			'</tr>';
+
+		$counter++;
+	}
 }
 
 print '</table>';
