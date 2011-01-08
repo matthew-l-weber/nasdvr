@@ -8,6 +8,7 @@ use Date::Calc qw( Add_Delta_Days Day_of_Week Day_of_Week_to_Text );
 use header;
 use footer;
 use scheduler;
+use util;
 
 db::init();
 
@@ -90,7 +91,7 @@ for (my $i = $start_hour; $i < 24; $i++) {
         print ' selected';
     }
 
-    print '>'.$val.'</option>';
+    print '>'.util::convertTime($val).'</option>';
 }
 
 print '</select></td>';
@@ -107,7 +108,7 @@ for (my $i = 1; $i <= 24; $i++) {
         print ' selected';
     }
 
-    print '>'.$val.'</option>';
+    print '>'.util::convertTime($val).'</option>';
 }
 
 print '</select></td>';
@@ -198,7 +199,7 @@ foreach my $p (@{$programs}) {
     
     print '</td>';
 
-    print '<td align="center">'.$p->{'time'}.'</td>'.
+    print '<td align="center">'.util::convertTime($p->{'time'}).'</td>'.
         '<td align="center">'.$p->{'duration'}.'</td>'.
         '<td align="center">'.$p->{'station'}.'</td>'.
         '<td>'.$p->{'title'}.'</td>'.

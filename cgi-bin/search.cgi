@@ -8,6 +8,7 @@ use Date::Calc qw( Add_Delta_Days Day_of_Week Day_of_Week_to_Text );
 use header;
 use footer;
 use scheduler;
+use util;
 
 db::init();
 
@@ -105,7 +106,7 @@ foreach my $p (@{$programs}) {
     my ($d, $t) = split(/ /, $p->{time});
 
     print '<td align="center">'.$d.'</td>'.
-        '<td align="center">'.$t.'</td>'.
+        '<td align="center">'.util::convertTime($t).'</td>'.
         '<td align="center">'.$p->{'duration'}.'</td>'.
         '<td align="center">'.$p->{'station'}.'</td>'.
         '<td>'.$p->{'title'}.'</td>'.

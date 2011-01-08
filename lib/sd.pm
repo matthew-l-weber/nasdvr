@@ -29,6 +29,7 @@ sub update {
 		localtime(time);
     
     $year += 1900;
+    $month += 1;
 
     my $root_path = 'SOAP-ENV:Envelope/SOAP-ENV:Body/ns1:downloadResponse/xtvdResponse/xtvd';
     my $station_path = $root_path.'/lineups/lineup/map';
@@ -49,15 +50,16 @@ sub update {
 			0, 0, $i, db::getPref('tz_offset'), 0, 0);
 
         my $start = sprintf("%04d-%02d-%02dT%02d:00:00Z", 
-			$y, $m + 1, $d, $h);
-		
+			$y, $m, $d, $h);
         my ($y, $m, $d, $h, $n, $s) = Add_Delta_YMDHMS(
 			$year, $month, $day,
 			0, 0, 0, 
 			0, 0, $i, db::getPref('tz_offset') + 23, 59, 59);
 
         my $stop = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", 
-			$y, $m + 1, $d, $h, $n, $s);
+			$y, $m, $d, $h, $n, $s);
+
+		print "$start - $stop\n";
 
         logger::log("Updating schedule from $start to $stop");
 
