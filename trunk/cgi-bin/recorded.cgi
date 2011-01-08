@@ -6,6 +6,7 @@ use lib '../lib';
 use db;
 use header;
 use footer;
+use util;
 
 db::init();
 
@@ -72,7 +73,7 @@ foreach my $p (@{$programs}) {
 		my ($d, $t) = split(/ /, $p->{time});
 
 		print '<td align="center">'.$d.'</td>'.
-			'<td align="center">'.$t.'</td>'.
+			'<td align="center">'.util::convertTime($t).'</td>'.
 			'<td align="center">'.$p->{'duration'}.'</td>'.
 			'<td align="center">'.$p->{'station'}.'</td>'.
 			'<td>'.$p->{'title'}.'</td>'.

@@ -299,7 +299,7 @@ sub getRecorded {
     my $st = $db->prepare('select recorded.*, programs.*, stations.* from recorded
         left outer join programs on (recorded.program_id = programs.program_id)
         left outer join stations on (recorded.station_id = stations.station_id)
-        where recorded.deleted != 1 order by start_time');
+        where recorded.deleted != 1 order by start_time desc');
 
     $st->execute();
 
