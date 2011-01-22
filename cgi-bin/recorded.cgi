@@ -68,7 +68,7 @@ foreach my $p (@{$programs}) {
 		print '<tr bgcolor="'.$color.'">';
 
 		print '<td><a href="?action=delete&id='.
-			$p->{'record_id'}.'">Delete</a></td>';
+			$p->{'record_id'}.'&filter_name='.$filter_name.'">Delete</a></td>';
 
 		my ($d, $t) = split(/ /, $p->{time});
 
