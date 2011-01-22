@@ -23,7 +23,6 @@ sub print {
         <tr>
         <td><b>NASDVR</b></td>
         <td><a href="listings.cgi">Listings</a></td><td>|</td>
-        <td><a href="grid.cgi">Grid</a></td><td>|</td>
         <td><a href="favorites.cgi">Favorites</a></td><td>|</td>
         <td><a href="search.cgi">Search</a></td><td>|</td>
         <td><a href="queue.cgi">Queue</a></td><td>|</td>
