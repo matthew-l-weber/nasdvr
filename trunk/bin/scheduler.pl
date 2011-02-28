@@ -11,7 +11,7 @@ use lib '../lib';
 use strict;
 use config;
 use db;
-use Date::Calc qw(Add_Delta_YMDHMS);
+use Date::Calc qw(Add_Delta_YMDHMS Mktime);
 use hdhr;
 use logger;
 
@@ -21,7 +21,9 @@ sub main {
 
     my $programs = db::getQueue();
 
-    my ($sec, $min, $hour, $day, $month, $year, $wday, $yday, $isdst) = localtime(time);
+    my $now = time();
+    
+    my ($sec, $min, $hour, $day, $month, $year, $wday, $yday, $isdst) = localtime($now);
 
     $year += 1900;
     $month++;
@@ -40,9 +42,10 @@ sub main {
                 my ($ny, $nm, $nd, $nh, $nn, $ns) =
                     Add_Delta_YMDHMS($1, $2, $3, $4, $5, 0,
                         0, 0, 0, $dh, $dm, 0);
-
-                if (($year >= $ny) and ($month >= $nm) and ($day >= $nd) and
-                    ($hour >= $nh) and ($min >= $nn)) {
+                    
+                my $t1 = Mktime($ny, $nm, $nd, $nh, $nn, $ns);
+                
+                if ($now > $t1) {
                     logger::log("$p->{'time'} - $p->{'title'} finished");
                     hdhr::clear($p->{'tuner'});
                     db::markRecorded($p->{'tuner'});
