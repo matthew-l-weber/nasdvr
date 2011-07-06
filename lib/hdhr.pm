@@ -47,9 +47,10 @@ sub record {
 
     my $channel = shift;
     my $program = shift;
+    my $directory = shift;
     my $filename = shift;
 
-    if (!defined($channel) or !defined($program) or !defined($filename)) {
+    if (!defined($channel) or !defined($program) or !defined($directory) or !defined($filename)) {
         return;
     }
 
@@ -80,7 +81,8 @@ sub record {
             close(FILE);
             return $tuner;
         } elsif ($pid == 0) {
-            $filename = db::getPref('recording_dir').'/'.$filename;
+            system("mkdir -p $directory");
+            $filename = $directory.'/'.$filename;
             system("$hdhr_config $hdhr_id set /tuner$tuner/channel auto:$channel");
             system("$hdhr_config $hdhr_id set /tuner$tuner/program $program");
             exec("$hdhr_config $hdhr_id save /tuner$tuner $filename");

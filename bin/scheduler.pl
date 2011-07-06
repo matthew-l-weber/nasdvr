@@ -76,18 +76,23 @@ sub record {
 
     my $tuner_rec = db::getTunerRec($p->{station});
 
-    my $filename = $p->{'time'}.'_'.$p->{'title'};
+    my $directory = db::getPref('recording_dir').'/'.$p->{'title'};
+    $directory =~ s/ /_/g;
+    $directory =~ s/\:/_/g;
+    $directory =~ s/\-/_/g;
+    $directory =~ s/\'//g;
+    $directory =~ s/\!//g;
+    
+    my $filename .= $p->{'time'}.'.mpg';   
     $filename =~ s/ /_/g;
     $filename =~ s/\:/_/g;
     $filename =~ s/\-/_/g;
     $filename =~ s/\'//g;
     $filename =~ s/\!//g;
-    $filename .= '.mpg';
-    
-    my $tuner = hdhr::record($tuner_rec->{'channel'}, $tuner_rec->{'program'}, $filename);
+                
+    my $tuner = hdhr::record($tuner_rec->{'channel'}, $tuner_rec->{'program'}, $directory, $filename);
 
-    logger::log("$p->{'time'} - ".
-        "$p->{'title'} on Tuner $tuner");
+    logger::log("$p->{'time'} - $p->{'title'} on Tuner $tuner");
 
     db::updateQueue($p->{queue_id}, $tuner);
 }
