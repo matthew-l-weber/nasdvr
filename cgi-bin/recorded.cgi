@@ -10,7 +10,7 @@ use util;
 
 db::init();
 
-print CGI::header(30);
+print CGI::header();
 
 my $filter_name = CGI::param('filter_name');
 
@@ -58,6 +58,8 @@ print '<tr bgcolor="#cccccc">
     <th align="left">Title</th>
     <th align="left">Subtitle</th>
     </tr>';
+    
+my $recording_url = db::getPref('recording_url');
 
 foreach my $p (@{$programs}) {
 
@@ -69,6 +71,7 @@ foreach my $p (@{$programs}) {
 
 		print '<td><a href="?action=delete&id='.
 			$p->{'record_id'}.'&filter_name='.$filter_name.'">Delete</a></td>';
+		print '<td><a href="'.$recording_url.'/'.$p->{filename}.'">View</a></td>';
 
 		my ($d, $t) = split(/ /, $p->{time});
 
