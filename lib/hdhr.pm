@@ -86,6 +86,7 @@ sub record {
             system("$hdhr_config $hdhr_id set /tuner$tuner/channel auto:$channel");
             system("$hdhr_config $hdhr_id set /tuner$tuner/program $program");
             exec("$hdhr_config $hdhr_id save /tuner$tuner $filename");
+            system("chmod -R 666 $directory");
         }
     }
 
