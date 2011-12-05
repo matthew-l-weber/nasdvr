@@ -12,7 +12,9 @@ my $db;
 sub init {
 
     if (!defined($db)) {
-        $db = DBI->connect('dbi:mysql:database='.config::getValue('db_name'),
+        $db = DBI->connect('dbi:mysql:database='.
+            config::getValue('db_name').';host='.
+            config::getValue('db_host'),
         config::getValue('db_username'),
         config::getValue('db_password'));
     }
@@ -202,6 +204,33 @@ sub getProgramRec {
     return $rec;
 }
 
+sub getRecordedRec {
+
+    my $id = shift;
+
+    my $st = $db->prepare('select * from recorded where record_id = ?');
+
+    $st->execute($id);
+
+    my $rec = $st->fetchrow_hashref();
+
+    my $time = substr($rec->{start_time}, 0, 10).' '.
+            substr($rec->{start_time}, 11, 5);
+
+    my $program_rec = getProgramRec($rec->{program_id});
+
+    my $filename = $program_rec->{'title'}.'/'.$time.'.mpg';
+    $filename =~ s/ /_/g;
+    $filename =~ s/\:/_/g;
+    $filename =~ s/\-/_/g;
+    $filename =~ s/\'//g;
+    $filename =~ s/\!//g;
+    
+    $rec->{filename} = $filename;
+    
+    return $rec;
+}
+
 sub getStations {
 
     my $st = $db->prepare('select * from stations order by channel, minor');
@@ -313,6 +342,20 @@ sub getRecorded {
         $rec->{time} = substr($rec->{start_time}, 0, 10).' '.
             substr($rec->{start_time}, 11, 5);
 
+        my $time = substr($rec->{start_time}, 0, 10).' '.
+                substr($rec->{start_time}, 11, 5);
+    
+        my $program_rec = getProgramRec($rec->{program_id});
+    
+        my $filename = $program_rec->{'title'}.'/'.$time.'.mpg';
+        $filename =~ s/ /_/g;
+        $filename =~ s/\:/_/g;
+        $filename =~ s/\-/_/g;
+        $filename =~ s/\'//g;
+        $filename =~ s/\!//g;
+        
+        $rec->{filename} = $filename;
+    
         push @programs, $rec;
     }
 
