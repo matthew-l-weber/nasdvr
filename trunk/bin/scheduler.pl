@@ -14,6 +14,7 @@ use db;
 use Date::Calc qw(Add_Delta_YMDHMS Mktime);
 use hdhr;
 use logger;
+use util;
 
 sub main {
 
@@ -75,21 +76,8 @@ sub record {
     my $p = shift;
 
     my $tuner_rec = db::getTunerRec($p->{station});
-
-    my $directory = db::getPref('recording_dir').'/'.$p->{'title'};
-    $directory =~ s/ /_/g;
-    $directory =~ s/\:/_/g;
-    $directory =~ s/\-/_/g;
-    $directory =~ s/\'//g;
-    $directory =~ s/\!//g;
-    
-    my $filename .= $p->{'time'}.'.mpg';   
-    $filename =~ s/ /_/g;
-    $filename =~ s/\:/_/g;
-    $filename =~ s/\-/_/g;
-    $filename =~ s/\'//g;
-    $filename =~ s/\!//g;
-                
+    my $directory = util::cleanFilename(db::getPref('recording_dir').'/'.$p->{'title'});
+    my $filename = util::cleanFilename($p->{'time'}.'.mpg');                   
     my $tuner = hdhr::record($tuner_rec->{'channel'}, $tuner_rec->{'program'}, $directory, $filename);
 
     logger::log("$p->{'time'} - $p->{'title'} on Tuner $tuner");

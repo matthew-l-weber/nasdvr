@@ -1,4 +1,4 @@
-#!/opt/local/bin/perl
+#!/usr/bin/perl
 
 use CGI;
 use strict;
@@ -139,6 +139,11 @@ foreach my $p (@{$programs}) {
     
     $p->{blocks} = $blocks;
     
+#    if ($p->{station} eq '4.1') {
+#        print "$key<br>";
+#        print $p->{title}.' - '.$p->{time}.' - '.$p->{duration}.' - '.$p->{blocks}."<br>";
+#    }
+    
     $program_hash{$key} = $p;
 }
 
@@ -159,9 +164,16 @@ foreach my $channel (@{$stations}) {
         my $found = 0;
         
         my $key = $channel.$hour;
+        #print "$key<br>";
         my $p = $program_hash{$key};
 
         if (defined($p)) {
+            
+#    if ($p->{station} eq '4.1') {
+#        print $p->{title}.' - '.$p->{time}.' - '.$p->{duration}.' - '.$p->{blocks}."<br>";
+#    }
+    
+            
             
             my $q = $queue_hash{$key};
                         
@@ -180,9 +192,9 @@ foreach my $channel (@{$stations}) {
             }
             
             if ($record) {
-                print "<td colspan='".$p->{blocks}."' bgcolor='#00cc00'>".$p->{title}."</td>";
+                print "<td colspan='".$p->{blocks}."' bgcolor='#00cc00'>".$p->{title}."<br>".$p->{subtitle}."</td>";
             } else {
-                print "<td colspan='".$p->{blocks}."' bgcolor='#ffffff'><a href='?action=record&id=".$p->{schedule_id}."' alt='".$p->{subtitle}."'>".$p->{title}."</a></td>";
+                print "<td colspan='".$p->{blocks}."' bgcolor='#ffffff'><a href='?action=record&id=".$p->{schedule_id}."'>".$p->{title}."<br>".$p->{subtitle}."</a></td>";
             }
             
             $i += $p->{blocks} - 1;

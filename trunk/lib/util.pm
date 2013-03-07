@@ -24,5 +24,19 @@ sub convertTime {
     return $t;
 }
 
+sub cleanFilename {
+ 
+    my $filename = shift;
+	
+    $filename =~ s/ /_/g;
+    $filename =~ s/\:/_/g;
+    $filename =~ s/\-/_/g;
+    $filename =~ s/\'//g;
+    $filename =~ s/\!//g;
+    $filename =~ s/\&//g;
+	
+	return $filename;
+}
+
 return 1;
 

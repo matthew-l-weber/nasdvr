@@ -5,9 +5,9 @@ use strict;
 my %vals;
 
 $vals{db_name} = 'nasdvr';
-$vals{db_host} = '192.168.3.10';
-$vals{db_username} = 'admin';
-$vals{db_password} = 'password';
+$vals{db_host} = 'localhost';
+$vals{db_username} = 'root';
+$vals{db_password} = 'root';
 
 sub getValue {
     my $key = shift;
