@@ -6,6 +6,7 @@ use config;
 use Date::Calc qw(Add_Delta_YMDHMS Mktime);
 use DBI;
 use logger;
+use util;
 
 my $db;
 
@@ -219,12 +220,7 @@ sub getRecordedRec {
 
     my $program_rec = getProgramRec($rec->{program_id});
 
-    my $filename = $program_rec->{'title'}.'/'.$time.'.mpg';
-    $filename =~ s/ /_/g;
-    $filename =~ s/\:/_/g;
-    $filename =~ s/\-/_/g;
-    $filename =~ s/\'//g;
-    $filename =~ s/\!//g;
+    my $filename = util::cleanFilename($program_rec->{'title'}.'/'.$time.'.mpg');
     
     $rec->{filename} = $filename;
     
@@ -347,12 +343,7 @@ sub getRecorded {
     
         my $program_rec = getProgramRec($rec->{program_id});
     
-        my $filename = $program_rec->{'title'}.'/'.$time.'.mpg';
-        $filename =~ s/ /_/g;
-        $filename =~ s/\:/_/g;
-        $filename =~ s/\-/_/g;
-        $filename =~ s/\'//g;
-        $filename =~ s/\!//g;
+        my $filename = util::cleanFilename($program_rec->{'title'}.'/'.$time.'.mpg');
         
         $rec->{filename} = $filename;
     
@@ -449,31 +440,23 @@ sub queue {
 
     if ($rec->{start_time} =~ /(.*)\-(.*)\-(.*)T(.*)\:(.*)\:(.*)Z/) {
 
-        # Don't allow recording times in the past
-
-        my $t1 = Mktime($year, $month, $day, $hour, 0, 0);
-        my $t2 = Mktime($1, $2, $3, $4, 0, 0);
-
-        if ($t2 >= $t1) {
-            
-            # Only record shows that are not in the queue and 
-            # are not recorded already
-            
-            my $st = $db->prepare('select * from queue where program_id = ?');
-            $st->execute($rec->{program_id});
-            my $rec2 = $st->fetchrow_hashref();
-            
-            my $st = $db->prepare('select * from recorded where program_id = ?');
-            $st->execute($rec->{program_id});
-            my $rec3 = $st->fetchrow_hashref();
-            
-            if (!defined($rec2) and !defined($rec3)) {
-                my $st = $db->prepare('insert into queue (program_id, station_id,
-                    start_time, duration) values (?, ?, ?, ?)');        
-                $st->execute($rec->{program_id}, $rec->{station_id}, 
-                        $rec->{start_time}, $rec->{duration});
-            }
-        }
+		# Only record shows that are not in the queue and 
+		# are not recorded already
+		
+		my $st = $db->prepare('select * from queue where program_id = ?');
+		$st->execute($rec->{program_id});
+		my $rec2 = $st->fetchrow_hashref();
+		
+		my $st = $db->prepare('select * from recorded where program_id = ?');
+		$st->execute($rec->{program_id});
+		my $rec3 = $st->fetchrow_hashref();
+		
+		if (!defined($rec2) and !defined($rec3)) {
+			my $st = $db->prepare('insert into queue (program_id, station_id,
+				start_time, duration) values (?, ?, ?, ?)');        
+			$st->execute($rec->{program_id}, $rec->{station_id}, 
+					$rec->{start_time}, $rec->{duration});
+		}
     }
 }
 
@@ -501,14 +484,16 @@ sub deleteRecording {
 
     my $program_rec = getProgramRec($rec->{program_id});
 
-    my $filename = getPref('recording_dir').'/'.$program_rec->{'title'}.'/'.$time.'.mpg';
-    $filename =~ s/ /_/g;
-    $filename =~ s/\:/_/g;
-    $filename =~ s/\-/_/g;
-    $filename =~ s/\'//g;
-    $filename =~ s/\!//g;
+    my $filename = util::cleanFilename(getPref('recording_dir').'/'.$program_rec->{'title'}.'/'.$time.'.mpg');
+    my $directory = util::cleanFilename(getPref('recording_dir').'/'.$program_rec->{'title'});
+	
+    system("rm -rf $filename");
 
-    unlink($filename);
+	my @files = `ls -1 $directory`;
+	
+	if (scalar(@files) == 0) {
+		system("rmdir $directory");
+	}
     
     logger::log("$filename deleted");
     
