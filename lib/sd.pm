@@ -17,7 +17,7 @@ sub SOAP::Transport::HTTP::Client::get_basic_credentials {
 
 sub update {
 
-    db::clearStationMap();
+# removed so that minors don't get reset as they are manually entered    db::clearStationMap();
     db::clearSchedule();
     db::clearPrograms();
 
