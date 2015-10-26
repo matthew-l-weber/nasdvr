@@ -76,13 +76,29 @@ sub record {
     my $p = shift;
 
     my $tuner_rec = db::getTunerRec($p->{station});
-    my $directory = util::cleanFilename(db::getPref('recording_dir').'/'.$p->{'title'});
-    my $filename = util::cleanFilename($p->{'time'}.'.mpg');                   
-    my $tuner = hdhr::record($tuner_rec->{'channel'}, $tuner_rec->{'program'}, $directory, $filename);
 
-    logger::log("$p->{'time'} - $p->{'title'} on Tuner $tuner");
+    my $filename = $p->{'title'};
+    $filename =~ s/ /_/g;
+    $filename =~ s/\-/_/g;
+    $filename =~ s/&/_/g;
+    $filename =~ s/\:/_/g;
+    $filename =~ s/\'//g;
+    $filename =~ s/\!//g;
+    $filename = $filename.'-'.$p->{'time'};
+    $filename =~ s/\:/-/g;
+    $filename =~ s/ /-/g;
+    $filename .= '.mpg';
 
-    db::updateQueue($p->{queue_id}, $tuner);
+    my $tuner = hdhr::reserve($tuner_rec->{'channel'}, $tuner_rec->{'program'}, $filename);
+    if (!defined($tuner)) {
+        logger::log("$p->{'time'} - "."$p->{'title'} - Waiting ...");
+    }
+    else {
+        logger::log("$p->{'time'} - "."$p->{'title'} on Tuner $tuner");
+        db::updateQueue($p->{queue_id}, $tuner);
+        hdhr::record($tuner_rec->{'channel'}, $tuner_rec->{'program'}, $filename, $tuner);
+        while (wait() != -1) {}
+    }
 }
 
 main();

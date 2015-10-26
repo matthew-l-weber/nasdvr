@@ -484,18 +484,18 @@ sub deleteRecording {
 
     my $program_rec = getProgramRec($rec->{program_id});
 
-    my $filename = util::cleanFilename(getPref('recording_dir').'/'.$program_rec->{'title'}.'/'.$time.'.mpg');
-    my $directory = util::cleanFilename(getPref('recording_dir').'/'.$program_rec->{'title'});
-	
-    system("rm -rf $filename");
+    my $filename = $time.'_'.$program_rec->{'title'};
+    $filename =~ s/ /_/g;
+    $filename =~ s/\:/_/g;
+    $filename =~ s/\-/_/g;
+    $filename =~ s/\'//g;
+    $filename =~ s/\!//g;
+    $filename .= '.mpg';
 
-	my @files = `ls -1 $directory`;
-	
-	if (scalar(@files) == 0) {
-		system("rmdir $directory");
-	}
-    
-    logger::log("$filename deleted");
+    if ( -f getPref('recording_dir').'/'.$filename) {
+        unlink(getPref('recording_dir').'/'.$filename);
+        logger::log("$filename deleted");
+    }
     
     $st = $db->prepare('update recorded set deleted = ? where record_id = ?');
 
