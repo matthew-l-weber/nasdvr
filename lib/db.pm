@@ -52,7 +52,7 @@ sub addStationMap {
     my $rec = getStationRec($station_id);
     
     if (!defined($rec)) {
-        
+        if ( $minor eq '' ) { $minor = 0; }       
         my $st = $db->prepare('insert into stations
         (station_id, channel, minor) values
         (?, ?, ?)');
