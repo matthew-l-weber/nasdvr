@@ -43,14 +43,14 @@ sub scan {
     }
 }
 
-sub record {
+sub reserve {
 
     my $channel = shift;
     my $program = shift;
-    my $directory = shift;
     my $filename = shift;
 
-    if (!defined($channel) or !defined($program) or !defined($directory) or !defined($filename)) {
+    if (!defined($channel) or !defined($program) or !defined($filename)) {
+	logger::log("record chan/prog/file arg error");
         return;
     }
 
@@ -58,8 +58,6 @@ sub record {
     my $lockfile;
     my $lockfile0 = db::getPref('data_dir').'/tuner0.lock';
     my $lockfile1 = db::getPref('data_dir').'/tuner1.lock';
-    my $hdhr_config = db::getPref('hdhr_config');
-    my $hdhr_id = db::getPref('hdhr_id');
 
     if (! -f $lockfile0) {
         $tuner = 0;
@@ -68,29 +66,35 @@ sub record {
         $tuner = 1;
         $lockfile = $lockfile1;
     } else {
+        # Invalid if no tuner
         return;
     }
 
+    open(FILE, ">$lockfile");
+    print FILE $$;
+    logger::log("tuner$tuner: pid=$$");
+    close(FILE);
+    return $tuner;
+}
+
+sub record {
+
+    my $channel = shift;
+    my $program = shift;
+    my $filename = shift;
+    my $tuner = shift;
+
+    my $hdhr_config = db::getPref('hdhr_config');
+    my $hdhr_id = db::getPref('hdhr_id');
+
     if (defined($tuner)) {
-
-        my $pid = fork();
-
-        if ($pid > 0) {
-            open(FILE, ">$lockfile");
-            print FILE "$pid";
-            close(FILE);
-            return $tuner;
-        } elsif ($pid == 0) {
-            system("mkdir -p $directory");
-            $filename = $directory.'/'.$filename;
-            system("$hdhr_config $hdhr_id set /tuner$tuner/channel auto:$channel");
-            system("$hdhr_config $hdhr_id set /tuner$tuner/program $program");
-            exec("$hdhr_config $hdhr_id save /tuner$tuner $filename");
-            system("chmod -R 666 $directory");
-        }
+        $filename = db::getPref('recording_dir').'/'.$filename;
+        system("$hdhr_config $hdhr_id set /tuner$tuner/channel auto:$channel");
+        system("$hdhr_config $hdhr_id set /tuner$tuner/program $program");
+        system("$hdhr_config $hdhr_id save /tuner$tuner $filename");
+        exit(0);
     }
-
-    return -1;
+    logger::log("record had invalid tuner");
 }
 
 sub clear {
