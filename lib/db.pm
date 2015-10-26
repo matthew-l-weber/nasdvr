@@ -505,9 +505,9 @@ sub getPref {
     
     my $st = $db->prepare('select * from prefs where name = ?');
     
-    $st->execute($name);
+    $st->execute($name) or die "Unable to execute:" . $st->errstr;
     
-    my $rec = $st->fetchrow_hashref();
+    my $rec = $st->fetchrow_hashref() or die "Unable to fetchrow:" . $st->errstr;
     
     return $rec->{value};
 }
@@ -595,7 +595,7 @@ sub getSeries {
     my $program_id = substr($program_id, 2, 8);
 
     my $st = $db->prepare('select * from schedule where program_id like ? and 
-        station_id = ?');
+        station_id = ? and new = \'true\'');
     
     $st->execute('%'.$program_id.'%', $station_id);
  
