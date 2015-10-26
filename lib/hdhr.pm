@@ -109,15 +109,19 @@ sub clear {
     my $lockfile = db::getPref('data_dir').'/tuner'.$tuner.'.lock';
 
     if (-f $lockfile) {
-        
-        open(FILE, $lockfile);
-        my $pid = <FILE>;
-        close(FILE);
 
-        system("kill $pid");
+# Ignore pid in file as it's the script not the exec call process ID
+#        open(FILE, $lockfile);
+#        my $pid = <FILE>;
+#        close(FILE);
 
+        my $killStr = "ps aux | grep \"[s]ave /tuner$tuner\" |  awk \'NR==1{print \$2}\' ";
+        my $pid=`$killStr`;
+        my $call_output=`/bin/kill -9 \`$killStr\``;
+        logger::log("tried to kill pid $pid for $tuner ERR[$call_output]");
         system("$hdhr_config $hdhr_id set /tuner$tuner/channel none");
 
+        logger::log("tried to remove lock for $tuner");
         unlink($lockfile);
     }
 }
