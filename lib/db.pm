@@ -429,23 +429,31 @@ sub queue {
 
     if ($rec->{start_time} =~ /(.*)\-(.*)\-(.*)T(.*)\:(.*)\:(.*)Z/) {
 
-		# Only record shows that are not in the queue and 
-		# are not recorded already
-		
-		my $st = $db->prepare('select * from queue where program_id = ?');
-		$st->execute($rec->{program_id});
-		my $rec2 = $st->fetchrow_hashref();
-		
-		my $st = $db->prepare('select * from recorded where program_id = ?');
-		$st->execute($rec->{program_id});
-		my $rec3 = $st->fetchrow_hashref();
-		
-		if (!defined($rec2) and !defined($rec3)) {
-			my $st = $db->prepare('insert into queue (program_id, station_id,
-				start_time, duration) values (?, ?, ?, ?)');        
-			$st->execute($rec->{program_id}, $rec->{station_id}, 
-					$rec->{start_time}, $rec->{duration});
-		}
+        # Don't allow recording times in the past
+
+        my $t1 = Mktime($year, $month, $day, $hour, 0, 0);
+        my $t2 = Mktime($1, $2, $3, $4, 0, 0);
+
+        if ($t2 >= $t1) {
+            
+            # Only record shows that are not in the queue and 
+            # are not recorded already
+            
+            my $st = $db->prepare('select * from queue where program_id = ?');
+            $st->execute($rec->{program_id});
+            my $rec2 = $st->fetchrow_hashref();
+            
+            my $st = $db->prepare('select * from recorded where program_id = ?');
+            $st->execute($rec->{program_id});
+            my $rec3 = $st->fetchrow_hashref();
+            
+            if (!defined($rec2) and !defined($rec3)) {
+                my $st = $db->prepare('insert into queue (program_id, station_id,
+                    start_time, duration) values (?, ?, ?, ?)');        
+                $st->execute($rec->{program_id}, $rec->{station_id}, 
+                        $rec->{start_time}, $rec->{duration});
+            }
+        }
     }
 }
 
