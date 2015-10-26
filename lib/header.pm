@@ -29,7 +29,8 @@ sub print {
         <td><a href="queue.cgi">Queue</a></td><td>|</td>
         <td><a href="recorded.cgi">Recorded</a></td><td>|</td>
         <td><a href="tuners.cgi">Tuners</a></td><td>|</td>
-        <td><a href="configure.cgi">Configure</a></td>
+        <td><a href="configure.cgi">Configure</a></td><td>|</td>
+        <td><a href="log.cgi">Log</a></td>
         </tr>
         </table>
         <hr style="height=1px;border-width:0px;background-color:#000000">

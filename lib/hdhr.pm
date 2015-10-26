@@ -1,8 +1,10 @@
 package hdhr;
 
+use lib 'lib';
 use strict;
 use config;
 use db;
+use logger;
 
 sub scan {
 
