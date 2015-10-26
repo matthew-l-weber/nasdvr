@@ -67,14 +67,15 @@ sub addSchedule {
     my $station = shift;
     my $time = shift;
     my $duration = shift;
+    my $newShowing = shift;
 
     $time = convertTime($time);
     
     my $st = $db->prepare('insert into schedule
-    (program_id, station_id, start_time, duration) values
-    (?, ?, ?, ?)');
+    (program_id, station_id, start_time, duration, new) values
+    (?, ?, ?, ?, ?)');
 
-    $st->execute($program_id, $station, $time, $duration);
+    $st->execute($program_id, $station, $time, $duration, $newShowing);
 }
 
 sub addProgram {
@@ -83,16 +84,17 @@ sub addProgram {
     my $title = shift;
     my $subtitle = shift;
     my $desc = shift;
+    my $origAirDate = shift;
     
     my $rec = getProgramRec($program_id);
     
     if (!defined($rec)) {
 
         my $st = $db->prepare('insert into programs
-        (program_id, title, subtitle, description) values
-        (?, ?, ?, ?)');
+        (program_id, title, subtitle, description, originalAirDate) values
+        (?, ?, ?, ?, ?)');
     
-        $st->execute($program_id, $title, $subtitle, $desc);
+        $st->execute($program_id, $title, $subtitle, $desc, $origAirDate);
     }
 }
 
@@ -165,20 +167,30 @@ sub getSearch {
     
     if (length($query)) {
 
+        my $st = $db->prepare('select * from stations');
+    
+        $st->execute();
+    
+        my %station_hash;
+    
+        while (my $rec = $st->fetchrow_hashref()) {
+            $station_hash{$rec->{station_id}} = $rec;
+        }
+    
         my $st = $db->prepare('select schedule.*, programs.*, stations.* from schedule
             left outer join programs on (schedule.program_id = programs.program_id)
             left outer join stations on (schedule.station_id = stations.station_id)
-            where (upper(programs.title) like ?) or
-            (upper(programs.subtitle) like ?)
+            where upper(programs.title) like ?
             order by start_time, stations.channel, stations.minor');
     
-        $st->execute('%'.uc($query).'%', '%'.uc($query).'%');
+        $st->execute('%'.uc($query).'%');
     
         while (my $rec = $st->fetchrow_hashref()) {
             
             $rec->{duration} = substr($rec->{duration}, 2, 2).':'.
                 substr($rec->{duration}, 5, 2);
-            $rec->{station} = $rec->{channel}.'.'.$rec->{minor};
+            my $rec2 = $station_hash{$rec->{station_id}};
+            $rec->{station} = $rec2->{channel}.'.'.$rec2->{minor};
             $rec->{time} = substr($rec->{start_time}, 0, 10).' '.
                 substr($rec->{start_time}, 11, 5);
     
@@ -199,28 +211,6 @@ sub getProgramRec {
 
     my $rec = $st->fetchrow_hashref();
 
-    return $rec;
-}
-
-sub getRecordedRec {
-
-    my $id = shift;
-
-    my $st = $db->prepare('select * from recorded where record_id = ?');
-
-    $st->execute($id);
-
-    my $rec = $st->fetchrow_hashref();
-
-    my $time = substr($rec->{start_time}, 0, 10).' '.
-            substr($rec->{start_time}, 11, 5);
-
-    my $program_rec = getProgramRec($rec->{program_id});
-
-    my $filename = util::cleanFilename($program_rec->{'title'}.'/'.$time.'.mpg');
-    
-    $rec->{filename} = $filename;
-    
     return $rec;
 }
 
@@ -316,12 +306,21 @@ sub getQueue {
 
 sub getRecorded {
 
+    my $st = $db->prepare('select * from stations');
+
+    $st->execute();
+
+    my %station_hash;
+
+    while (my $rec = $st->fetchrow_hashref()) {
+        $station_hash{$rec->{station_id}} = $rec;
+    }
+
     my @programs;
 
-    my $st = $db->prepare('select recorded.*, programs.*, stations.* from recorded
-        left outer join programs on (recorded.program_id = programs.program_id)
-        left outer join stations on (recorded.station_id = stations.station_id)
-        where recorded.deleted != 1 order by start_time desc');
+    my $st = $db->prepare('select recorded.*, programs.* from recorded
+            left outer join programs on (recorded.program_id = programs.program_id)
+            where recorded.deleted != 1 order by start_time');
 
     $st->execute();
 
@@ -330,20 +329,13 @@ sub getRecorded {
         $rec->{duration} = substr($rec->{duration}, 2, 2).':'.
             substr($rec->{duration}, 5, 2);
 
-        $rec->{station} = $rec->{channel}.'.'.$rec->{minor};
+        my $rec2 = $station_hash{$rec->{station_id}};
+
+        $rec->{station} = $rec2->{channel}.'.'.$rec2->{minor};
 
         $rec->{time} = substr($rec->{start_time}, 0, 10).' '.
             substr($rec->{start_time}, 11, 5);
 
-        my $time = substr($rec->{start_time}, 0, 10).' '.
-                substr($rec->{start_time}, 11, 5);
-    
-        my $program_rec = getProgramRec($rec->{program_id});
-    
-        my $filename = util::cleanFilename($program_rec->{'title'}.'/'.$time.'.mpg');
-        
-        $rec->{filename} = $filename;
-    
         push @programs, $rec;
     }
 

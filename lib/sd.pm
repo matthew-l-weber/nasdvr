@@ -95,7 +95,8 @@ sub handleSchedule {
     $schedule->att('program'),
     $schedule->att('station'),
     $schedule->att('time'),
-    $schedule->att('duration'));
+    $schedule->att('duration'),
+    defined($schedule->att('new')) ? $schedule->att('new') : '');
 
     $twig->purge;
 }
@@ -110,9 +111,9 @@ sub handleProgram {
         $program->att('id'),
         $program->first_child('title')->text,
         defined($program->first_child('subtitle')) ? $program->first_child('subtitle')->text : '',
-        defined($program->first_child('description')) ? $program->first_child('description')->text : '');
+        defined($program->first_child('description')) ? $program->first_child('description')->text : '',
+        defined($program->first_child('originalAirDate')) ? $program->first_child('originalAirDate')->text : '');
     }
-
     $program_hash{$program->att('id')} = 1;
 
     $twig->purge;
