@@ -5,7 +5,6 @@ use strict;
 my %vals;
 
 $vals{db_name} = 'nasdvr';
-$vals{db_host} = 'localhost';
 $vals{db_username} = 'root';
 $vals{db_password} = 'root';
 

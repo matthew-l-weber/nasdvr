@@ -6,16 +6,13 @@ use config;
 use Date::Calc qw(Add_Delta_YMDHMS Mktime);
 use DBI;
 use logger;
-use util;
 
 my $db;
 
 sub init {
 
     if (!defined($db)) {
-        $db = DBI->connect('dbi:mysql:database='.
-            config::getValue('db_name').';host='.
-            config::getValue('db_host'),
+        $db = DBI->connect('dbi:mysql:database='.config::getValue('db_name'),
         config::getValue('db_username'),
         config::getValue('db_password'));
     }
